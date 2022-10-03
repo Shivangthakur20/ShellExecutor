@@ -1,0 +1,63 @@
+#!/bin/bash
+
+
+
+
+
+COOKIE_FILE='cookie.test'; #$(mktemp);
+TEMP_WORKING_FILE='test.out'; #$(mktemp);
+COMMA='%2C';
+CONT=1;
+if [ ! -f $COOKIE_FILE ]; then
+	echo 'You will need to rerun this in order for it to work';
+	CONT=0;
+fi
+CONTAINERS=$(echo $1 $2 $3|xargs|sed -e s/' '/"$COMMA"/g);
+echo $CONTAINERS;
+
+
+  curl 'https://www.cma-cgm.com/ebusiness/tracking/search' \
+  -H 'authority: www.cma-cgm.com' \
+  -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' \
+  -H 'accept-language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'cache-control: max-age=0' \
+  -H 'content-type: application/x-www-form-urlencoded' \
+  -H 'origin: https://www.cma-cgm.com' \
+  -H 'referer: https://www.cma-cgm.com/ebusiness/tracking/search' \
+  -H 'sec-ch-device-memory: 8' \
+  -H 'sec-ch-ua: "Google Chrome";v="105", "Not)A;Brand";v="8", "Chromium";v="105"' \
+  -H 'sec-ch-ua-arch: "x86"' \
+  -H 'sec-ch-ua-full-version-list: "Google Chrome";v="105.0.5195.127", "Not)A;Brand";v="8.0.0.0", "Chromium";v="105.0.5195.127"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-model: ""' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'sec-fetch-dest: document' \
+  -H 'sec-fetch-mode: navigate' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'sec-fetch-user: ?1' \
+  -H 'upgrade-insecure-requests: 1' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36' \
+  --data-raw 'g-recaptcha-response=03AIIukzhiV1BTzr-a7S0LEkamTjIFf2QMxc-cLqp-fPU8z-UN2kCsJvlN-d4QQoviqEFXJGZOt8K2P4PkC4AISYUvdwyKTTH_6GOCJJFExjXy6tdKXL0G3_1V0vCqTV0vi3K0WBBwAek3mgFOl0eArYdMURRCBBB9AswOLdNl2120BuQd4wPAI6t4cZq-Tv81gtZSNh5YlCLtzkQEh21lnq5fHTR--ne76DfbC8-h2gaoBSyuh_87fE9HU3rZlAYQESv8QrU1db6wCcDCysvT-3tNtpuZX8S8vGYNF89hICrQuvEiaQnYx5R0Ewwb628QVc1yp5qpwkTrgH4TmXfz8xNaAvtswyk5VymC5bmIUuhH2vobafACFIlY6Ug2qUsDUfIxXtGwMCGQg7D5Av2m5ORHyon5qnQdhiFj9Vdw-cJqGeUZ70LZXVGV9V9LjRAKSAHTwygxSjgVyHvSEGSb4aiQ16qrYxPz5-Tu6Fm1LR0Uau2fcsghtZjltyMWrA6wuN3rtRP6v1wrpxwWyR4QkXiaPG4DQiXUQewteCxd9cE94-ESn51ZmHF3ELInjCbT87CwSndEPeeyaLOHiL-gJpoSSuWzxg9xEnhOypII_UugJl6_nOkf-EaRF3ldL74ykktLKcEfQ-4vCrqZTucl2ZLaH9ANg9iFCfa2KgGKC-13u1Kfd0HnqpjynNx4z-g33U5G1vgmxQx0pkAJHESvQfgq90CkGhfYYr4ts9BGFldW5AJoo6vwSBxGIkgH7gSAKgkc7tgebx1t68VvFLL_6O_dXEbN_RKoAbocpUMbzCo_eWQy0L1yEaMeoUyugOsyme-Dt-z9EGug-D7MsfLS-5vdDAiPLaU77ddDx0288uOPpjIkuSHmThQuqZba1ELqzvRyJ4Ylj3l2msKcLJYmZ0HIYCve9U-acUqI9Mi7pe8iV477JDGBV64dnnq61LH0exWwzJ3N4ARTe7mEBwZegqWMAyjzjzQQzIjHPxMArYqLB9x3XOFTGqe5Gf-cFNMU9vmugwi2AAT1M2UXuwnXP-cAtJwvTbCIBq8v3maJsVBlYqW5j2LgUXdsjZjCgUvzPbT06PWVRvF0y_967q6rC_VTDTfQCVGLw9-XV0wtdMtxiHngPnUFIaGOo43CGjMJRbsI_7_F4W-NIPPuUAoR8tBLE4qZa0uPpwrIblTgPnbfms9p6HFOsGAljvJO6P6wlyO3CZfAH4zHixTBRh2oOIbsBT8XmZtQyX3joSYtn4iRnX_Kdav_n49kM03fzplIVllSc2BYBpcp&SearchViewModel.SearchBy=Container&SearchViewModel.Reference='$CONTAINERS'&SearchViewModel.FromHome=true' \
+  --compressed\
+   -c $COOKIE_FILE -b $COOKIE_FILE \
+  > $TEMP_WORKING_FILE;
+
+if [ $CONT -eq 0 ]; then
+  echo 1
+	exit;
+fi
+
+ NO_RES_CHECK=$(grep -c '<div class="no-result">' $TEMP_WORKING_FILE);
+ if [ $NO_RES_CHECK -gt 0 ]; then
+	 echo 'No Results found';
+	 exit;
+ fi
+  LOC=$(grep -n "results-wrapper" $TEMP_WORKING_FILE|cut -d':' -f1);
+  TOTAL=$(wc -l $TEMP_WORKING_FILE|awk '{print $1}');
+TAIL=$(($TOTAL-$LOC));
+HEAD=$(tail -$TAIL $TEMP_WORKING_FILE |grep -n style|head -1|cut -d':' -f1);
+
+
+tail -$TAIL $TEMP_WORKING_FILE|head -$HEAD > test.out.html
+
+echo 0
